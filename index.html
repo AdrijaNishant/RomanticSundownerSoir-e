@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Adrija & Nishant | The Engagement</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Great+Vibes&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-deep: #f5e6e8;
+            --glass-surface: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.9);
+            --text-main: #4a3b3b;
+            --gold-start: #bf953f;
+            --gold-mid: #fcf6ba;
+            --gold-end: #aa771c;
+            /* Gold Gradient Texture */
+            --gold-foil: linear-gradient(135deg, #bf953f 0%, #fcf6ba 40%, #b38728 60%, #fbf5b7 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-deep);
+            font-family: 'Cormorant Garamond', serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1200px;
+        }
+
+        /* --- 1. AMBIENT BACKGROUND --- */
+        .ambient-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
+            background: radial-gradient(circle at 50% 50%, #fff0f3, #e8d0d5);
+            overflow: hidden;
+        }
+        
+        /* Floating Petals */
+        .petal {
+            position: absolute;
+            background: rgba(183, 110, 121, 0.4);
+            border-radius: 100% 0 100% 0;
+            animation: floatPetal 15s infinite linear;
+        }
+        @keyframes floatPetal {
+            0% { transform: translateY(-10vh) rotate(0deg) scale(0.5); opacity: 0; }
+            20% { opacity: 0.6; }
+            100% { transform: translateY(110vh) rotate(360deg) scale(1); opacity: 0; }
+        }
+
+        /* --- 2. ENVELOPE (Unchanged, as requested) --- */
+        .envelope-wrapper {
+            position: relative; width: 320px; height: 220px; z-index: 100;
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d; cursor: pointer;
+        }
+        .envelope-wrapper.opened { transform: translateY(300px) scale(0.5); opacity: 0; pointer-events: none; }
+        .envelope {
+            position: absolute; width: 100%; height: 100%;
+            background: #eecfa1; /* Richer Champagne */
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border-radius: 6px; overflow: hidden;
+        }
+        .envelope-flap {
+            position: absolute; top: 0; left: 0; width: 0; height: 0;
+            border-left: 160px solid transparent; border-right: 160px solid transparent;
+            border-top: 130px solid #e2c08d; /* Darker flap */
+            transform-origin: top; transition: transform 0.6s ease 0.5s, z-index 0.1s; z-index: 5;
+        }
+        .envelope-wrapper.open-anim .envelope-flap { transform: rotateX(180deg); z-index: 1; }
+        .envelope-pocket {
+            position: absolute; bottom: 0; left: 0; width: 0; height: 0;
+            border-left: 160px solid #eecfa1; border-right: 160px solid #eecfa1;
+            border-bottom: 120px solid #e0c296; z-index: 4;
+        }
+        .wax-seal {
+            position: absolute; top: 100px; left: 50%; transform: translate(-50%, -50%);
+            width: 65px; height: 65px;
+            background: radial-gradient(circle at 30% 30%, #a83f3f, #7a1f1f);
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 10;
+            display: flex; justify-content: center; align-items: center;
+            color: #eecfa1; font-family: 'Cinzel Decorative', serif; font-size: 1.8rem;
+            border: 2px solid rgba(255,255,255,0.1); cursor: pointer; transition: transform 0.3s;
+        }
+        .wax-seal:hover { transform: translate(-50%, -50%) scale(1.1); }
+        .envelope-wrapper.open-anim .wax-seal { opacity: 0; transition: opacity 0.3s; }
+
+        /* --- 3. THE LUXURY CARD --- */
+        .card-container {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, 10%) scale(0.8);
+            width: 90vw; max-width: 450px; height: 85vh;
+            z-index: 1; opacity: 0;
+            transition: all 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.8s;
+        }
+        .card-container.visible { transform: translate(-50%, -50%) scale(1); opacity: 1; z-index: 200; }
+
+        .luxury-card {
+            background: var(--glass-surface);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 2px; /* Sharper corners for premium feel */
+            box-shadow: 
+                0 30px 60px -10px rgba(74, 59, 59, 0.15),
+                inset 0 0 0 1px rgba(255,255,255,0.4);
+            height: 100%; width: 100%;
+            padding: 20px;
+            position: relative;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+        .luxury-card::-webkit-scrollbar { display: none; }
+
+        /* Paper Texture Overlay */
+        .luxury-card::before {
+            content: ""; position: absolute; top:0; left:0; width:100%; height:100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: -1;
+        }
+
+        /* The Double Border Frame */
+        .gold-frame {
+            border: 2px solid #d4af37;
+            border-image: var(--gold-foil) 1;
+            height: 100%; width: 100%;
+            padding: 20px 10px;
+            position: relative;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+        }
+        
+        /* Corner Flourishes (CSS Shapes) */
+        .flourish {
+            position: absolute; width: 40px; height: 40px;
+            border: 2px solid #d4af37; opacity: 0.6;
+            transition: all 1s ease;
+        }
+        .f-tl { top: 5px; left: 5px; border-bottom: none; border-right: none; }
+        .f-tr { top: 5px; right: 5px; border-bottom: none; border-left: none; }
+        .f-bl { bottom: 5px; left: 5px; border-top: none; border-right: none; }
+        .f-br { bottom: 5px; right: 5px; border-top: none; border-left: none; }
+
+        /* TYPOGRAPHY LUXURY */
+        .gold-text {
+            background: var(--gold-foil);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shine 4s linear infinite;
+        }
+        @keyframes shine { to { background-position: 200% center; } }
+
+        .top-label {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.7rem; letter-spacing: 3px;
+            text-transform: uppercase; color: #8a7a7a;
+            margin-bottom: 25px; margin-top: 10px;
+        }
+
+        h1.event-name {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3rem;
+            line-height: 1.1;
+            margin-bottom: 30px;
+            /* Using standard color fallback, gold class applied below */
+            color: #b38728; 
+            padding: 0 10px;
+        }
+
+        /* The Hero Names */
+        .couple-block { margin: 20px 0; position: relative; }
+        .hero-name {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 2.4rem;
+            color: var(--text-main);
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: 1px;
+        }
+        .and-symbol {
+            font-family: 'Pinyon Script', cursive;
+            font-size: 2rem; color: #d4af37;
+            margin: 5px 0;
+        }
+
+        /* Divider */
+        .ornament-div {
+            font-size: 1.5rem; color: #d4af37; margin: 25px 0;
+            opacity: 0.8;
+        }
+
+        /* Details */
+        .details-box {
+            font-size: 1.1rem; color: #5e4b4b; line-height: 1.6;
+            background: rgba(255,255,255,0.4);
+            padding: 15px; width: 100%;
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        .details-box strong { font-family: 'Cinzel Decorative'; color: #2c2222; font-size: 1.2rem; }
+        
+        /* Dress Code - Elegant */
+        .dress-code-fancy {
+            margin-top: 25px;
+            width: 100%;
+        }
+        .dc-label {
+            font-family: 'Montserrat'; font-size: 0.6rem; letter-spacing: 2px;
+            text-transform: uppercase; color: #999; margin-bottom: 10px;
+        }
+        .swatch-row { display: flex; justify-content: center; gap: 15px; margin-bottom: 10px; }
+        .gem {
+            width: 20px; height: 20px; border-radius: 50%;
+            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.1), 0 2px 5px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        /* RSVP Button */
+        .rsvp-container { margin-top: 30px; width: 100%; }
+        .btn-gold {
+            background: linear-gradient(to right, #e2c08d, #d4af37, #e2c08d);
+            background-size: 200% auto;
+            color: white; padding: 12px 30px;
+            border: none; border-radius: 2px;
+            font-family: 'Montserrat'; text-transform: uppercase;
+            letter-spacing: 2px; font-size: 0.75rem;
+            cursor: pointer; text-decoration: none; display: inline-block;
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+            animation: shine 5s infinite linear;
+        }
+        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(212, 175, 55, 0.4); }
+
+        /* Animations */
+        .reveal { opacity: 0; transform: translateY(20px); transition: 0.8s ease; }
+        .visible .reveal { opacity: 1; transform: translateY(0); }
+        .delay-1 { transition-delay: 0.2s; }
+        .delay-2 { transition-delay: 0.4s; }
+        .delay-3 { transition-delay: 0.6s; }
+        .delay-4 { transition-delay: 0.8s; }
+
+    </style>
+</head>
+<body>
+
+    <audio id="bgMusic" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2022/03/24/audio_333454b513.mp3?filename=piano-moment-11427.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="ambient-bg">
+        </div>
+
+    <div class="envelope-wrapper" id="envelope" onclick="openInvitation()">
+        <div class="envelope">
+            <div class="envelope-pocket"></div>
+        </div>
+        <div class="envelope-flap"></div>
+        <div class="wax-seal">A|N</div>
+    </div>
+
+    <div class="card-container" id="mainCard">
+        <div class="luxury-card">
+            <div class="gold-frame">
+                <div class="flourish f-tl"></div>
+                <div class="flourish f-tr"></div>
+                <div class="flourish f-bl"></div>
+                <div class="flourish f-br"></div>
+
+                <div class="top-label reveal">You are cordially invited to a</div>
+                
+                <h1 class="event-name gold-text reveal delay-1">Romantic<br>Sundowner Soirée</h1>
+                
+                <div class="couple-block reveal delay-2">
+                    <div class="hero-name">Adrija</div>
+                    <div class="and-symbol">&</div>
+                    <div class="hero-name">Nishant</div>
+                    <div class="top-label" style="margin:10px 0 0 0;">To Celebrate Their Engagement</div>
+                </div>
+
+                <div class="ornament-div reveal delay-3">❦</div>
+
+                <div class="details-box reveal delay-3">
+                    <div style="margin-bottom: 15px;">
+                        <span style="font-size:1.8rem; line-height:1; display:block; margin-bottom:5px;">07</span>
+                        <strong style="text-transform:uppercase; letter-spacing:1px;">March 2026</strong><br>
+                        Saturday • 4:00 PM
+                    </div>
+                    <div>
+                        <strong>Eden Courtyard</strong><br>
+                        <span style="font-style:italic;">ManiSquare Mall, Kolkata</span>
+                    </div>
+                </div>
+
+                <div class="dress-code-fancy reveal delay-4">
+                    <div class="dc-label">Palette</div>
+                    <div class="swatch-row">
+                        <div class="gem" style="background:#faddd7"></div>
+                        <div class="gem" style="background:#c48e92"></div>
+                        <div class="gem" style="background:#fffff0"></div>
+                        <div class="gem" style="background:#f3e5ab"></div>
+                        <div class="gem" style="background:#e3c6b2"></div>
+                    </div>
+                    <div style="font-size:0.8rem; color:#666; font-style:italic;">
+                        Blush Pink • Dusty Rose • Ivory • Champagne • Nude
+                    </div>
+                </div>
+
+                <div class="rsvp-container reveal delay-4">
+                    <a href="https://wa.me/919007099825?text=Congratulations%20Adrija%20%26%20Nishant!%20We%20will%20be%20joining%20the%20Soirée." target="_blank" class="btn-gold">
+                        Confirm Presence
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. OPENING SEQUENCE ---
+        function openInvitation() {
+            const envelope = document.getElementById('envelope');
+            const card = document.getElementById('mainCard');
+            const audio = document.getElementById('bgMusic');
+
+            // Play Music
+            audio.volume = 0.6;
+            audio.play().catch(e => console.log("Audio requires interaction"));
+
+            // Animate
+            envelope.classList.add('open-anim');
+            
+            setTimeout(() => {
+                envelope.classList.add('opened');
+                card.classList.add('visible');
+            }, 800);
+        }
+
+        // --- 2. GENERATE PETALS ---
+        const bg = document.querySelector('.ambient-bg');
+        for(let i=0; i<15; i++) {
+            const petal = document.createElement('div');
+            petal.classList.add('petal');
+            petal.style.left = Math.random() * 100 + 'vw';
+            petal.style.width = (Math.random() * 10 + 10) + 'px';
+            petal.style.height = petal.style.width;
+            petal.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            petal.style.animationDelay = (Math.random() * 5) + 's';
+            bg.appendChild(petal);
+        }
+
+        // --- 3. 3D TILT EFFECT (Mouse & Gyro) ---
+        // Keeps the card feeling "alive"
+        document.addEventListener('mousemove', (e) => {
+            const card = document.querySelector('.luxury-card');
+            const x = (window.innerWidth / 2 - e.pageX) / 40;
+            const y = (window.innerHeight / 2 - e.pageY) / 40;
+            card.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
+        });
+
+        // Mobile Gyro Support
+        window.addEventListener('deviceorientation', (e) => {
+            if(window.innerWidth < 768) {
+                const card = document.querySelector('.luxury-card');
+                const x = e.gamma / 4; 
+                const y = (e.beta - 45) / 4;
+                card.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+            }
+        });
+    </script>
+</body>
+</html>
